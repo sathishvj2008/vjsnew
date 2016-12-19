@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AR demo</title>
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
+<meta charset="utf-8"/>
+<style type="text/css">
+* {
+  margin: 0;
+  padding: 0;
+}
+#container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  overflow: hidden;
+}
+</style>
+</head>
+<body>
+<div id="container">
+  
+  <canvas id="canvas" width="320px" height="240px" style="display: none;"></canvas>
+  
+  <div id="loading-image" style="text-align:center; position:fixed;top:45%;left:45%;z-index:1005;display:none;">
+  <div><img src="images/squares.gif" alt="Loading..." /></div>
+  <div>Loading...</div>
+  </div>
+
+    <div id="overlaydiv" class="hidden">
+      <div class="ui-widget-overlay modal-overlay" style="width: 100%; height: 100%; z-index:10000;"></div>
+       
+    </div>
+
+
+</div>
+ <script src="js/utils.js"></script>
+<script src="js/three.min.js"></script>
+<!-- <script src="node_modules/three/src/loaders/JSONLoader.js"></script>
+<script src="node_modules/three/examples/js/loaders/OBJLoader.js"></script>
+<script src="node_modules/three/examples/js/loaders/MTLLoader.js"></script>
+<script src="node_modules/three/examples/js/renderers/Projector.js"></script> -->
+<script type="text/javascript" src="js/awe-loader-min.js"></script>
+
+
+
+<script type="text/javascript">
+var find_marker = false;
+var levels      = [  0,  3,  8, 16, 29, 50, 84, 184];
+var percentages = [ 33.33, 20.0, 12.5,  7.69,  4.76,  2.94,  1.0];
+var person      = utils.getParameterByName("p");
+
+// TODO: I'm guessing this should be done by AWE
+/* var helvetiker;
+new THREE.FontLoader().load( 'helvetiker_regular.typeface.js', function (response) {
+  helvetiker = response;
+}); */
+var camera, canvas, context, imageData, pixels, detector;
+canvas = document.getElementById("canvas");
+context = canvas.getContext("2d");
+canvas.style.display = "block";
+
+
+  window.addEventListener('load', function() {
+    window.awe.init({
+      device_type: awe.AUTO_DETECT_DEVICE_TYPE,
+      settings: {
+        container_id: 'container',
+        default_camera_position: { x:0, y:0, z:0 },
+        default_lights:[
+          {
+            id: 'point_light',
+            type: 'point',
+            color: 0xFFFFFF,
+          },
+        ],
+      },
+      ready: function() {
+        awe.util.require([
+          {
+            capabilities: ['gum','webgl'],
+            files: [ 
+              [ 'js/awe-standard-dependencies.js',
+                'js/awe-standard.js'],
+              'js/awe-jsartoolkit-dependencies.js',
+              'js/awe.marker_ar.js',
+              'js/awe-standard-window_resized.js', // window resize handling plugin
+              'js/awe-standard-object_clicked.js', // object click/tap handling plugin
+            ],
+            success: function() { 
+        awe.setup_scene(); 
+
+              awe.pois.add({ id:'poi_1', position: { x:0, y:0, z:10000 }, visible: false }); 
+              
+              
+              awe.events.add([{
+                id: 'ar_tracking_marker',
+                device_types: {
+                  pc: 1,
+                  android: 1
+                },
+                register: function(handler) {
+                  window.addEventListener('ar_tracking_marker', handler, false);
+                  
+                },
+                unregister: function(handler) {
+                  window.removeEventListener('ar_tracking_marker', handler, false);
+                },
+                
+                handler: function(event) {
+                  if (event.detail) {
+                    if (event.detail['64']) { // we are mapping marker #64 to this projection
+                       
+                    
+                    if(!find_marker){
+                      document.getElementById("loading-image").style.display = "block";
+                      document.getElementById('overlaydiv').style.visibility = 'true';
+                      setTimeout('redirect()', 2000);
+                      find_marker = true;
+                    } 
+                    }
+                    else {
+                      awe.pois.update({
+                        data: {
+                          visible: false
+                        },
+                        where: {
+                          id: 'poi_1'
+                        }
+                      });
+                    }
+                    awe.scene_needs_rendering = 1;
+                  }
+                }
+              }]);
+              
+               
+              
+              
+            },// success()
+          },
+          {
+            capabilities: [],
+            success: function() { 
+              document.body.innerHTML = '<p>Try this demo in the latest version of Chrome or Firefox on a PC or Android device</p>';
+            },
+          },
+        ]);
+      }
+    });
+  });
+  function redirect () {
+    
+    document.location="https://www.google.com/";
+     
+  }
+</script>
+</body>
+</html> 
