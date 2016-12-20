@@ -151,11 +151,26 @@ canvas.style.display = "block";
       }
     });
   });
-  function redirect () {
-    
-    document.location="https://www.google.com/";
-     
-  }
+  function getParameterByName(name, url) {
+    if (!url) {
+      url = window.location.href;
+    }
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+function redirect () {
+		var param = getParameterByName('to');
+		if(param!=null){
+			document.location="https://www."+param+".com";
+		}else{
+			document.location="https://www.google.com";
+		}
+		 
+	}
 </script>
 </body>
 </html> 
